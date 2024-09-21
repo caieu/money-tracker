@@ -7,12 +7,13 @@
  * need to use are documented accordingly near the end.
  */
 
-import { initTRPC, TRPCError } from "@trpc/server";
+import { inferRouterOutputs, initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
+import { AppRouter } from "./root";
 
 /**
  * 1. CONTEXT
@@ -131,3 +132,5 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+export type RouterOutput = inferRouterOutputs<AppRouter>;

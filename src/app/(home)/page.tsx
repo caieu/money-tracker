@@ -3,6 +3,7 @@ import { Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HydrateClient } from "@/trpc/server";
+import { LoginButton } from "@/components/login-button";
 
 export default async function Home() {
   return (
@@ -71,12 +72,7 @@ export default async function Home() {
 
         <footer className="p-4">
           <div className="container mx-auto">
-            <Button
-              className="w-full bg-blue-500 text-white hover:bg-blue-600"
-              size="lg"
-            >
-              Login
-            </Button>
+            <LoginButton />
           </div>
         </footer>
       </div>
