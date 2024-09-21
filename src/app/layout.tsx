@@ -26,7 +26,7 @@ export default async function RootLayout({
   const session = await getServerAuthSession();
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
-      <body>
+      <body className="bg-background container mx-auto h-[calc(100dvh)]">
         <TRPCReactProvider>
           <SessionProvider session={session}>
             <ThemeProvider

@@ -14,7 +14,7 @@ export default async function AuthenticatedLayout({
   return (
     <>
       <Navbar />
-      <main className="container mx-auto bg-background p-4">{children}</main>
+      <main className="p-4">{children}</main>
     </>
   );
 }
