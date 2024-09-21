@@ -1,6 +1,6 @@
 import { InfoCard } from "@/components/info-card";
 import { LoanList } from "@/components/loan-list";
-import ThemeToggle from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/server";
 import { DollarSign, List, Plus, TrendingUp, Users } from "lucide-react";
