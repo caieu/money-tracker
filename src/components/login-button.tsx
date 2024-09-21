@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getServerAuthSession } from "~/server/auth";
+import { getServerAuthSession } from "@/server/auth";
 
 export const LoginButton = async () => {
   const session = await getServerAuthSession();
