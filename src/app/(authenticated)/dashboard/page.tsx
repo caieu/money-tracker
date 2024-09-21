@@ -1,30 +1,63 @@
+import { InfoCard } from "@/components/info-card";
+import { LoanList } from "@/components/loan-list";
+import ThemeToggle from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LoanList } from "@/components/LoanList";
+import { DollarSign, List, Plus, TrendingUp, Users } from "lucide-react";
+import Link from "next/link";
 
 export default async function DashboardPage() {
-  const loanSummary = await api.loan.getSummary();
+  const { totalLent, averageDebt } = await api.loan.getSummary();
   const loans = await api.loan.getAll({});
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="mb-6 text-3xl font-bold">Dashboard</h1>
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Lent</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold">
-              ${loanSummary.totalLent.toFixed(2)}
-            </p>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen space-y-4 bg-white p-4 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Debt Tracker Dashboard</h1>
+        <ThemeToggle />
       </div>
-      <div className="mt-8">
-        <h2 className="mb-4 text-2xl font-semibold">Recent Loans</h2>
-        <LoanList loans={loans} />
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <InfoCard
+          title="Total Lent"
+          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">${totalLent.toFixed(2)}</div>
+        </InfoCard>
+        <InfoCard
+          title="Number of Debtors"
+          icon={<Users className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">{loans.length}</div>
+        </InfoCard>
+
+        {!!averageDebt && (
+          <InfoCard
+            title="Average Debt"
+            icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+          >
+            <div className="text-2xl font-bold">${averageDebt.toFixed(2)}</div>
+          </InfoCard>
+        )}
       </div>
+
+      {!!loans.length && (
+        <InfoCard
+          title="Loan List"
+          icon={<List className="h-4 w-4 text-muted-foreground" />}
+        >
+          <LoanList loans={loans} />
+        </InfoCard>
+      )}
+
+      <Link href="/add/loan" passHref>
+        <Button
+          className="fixed bottom-4 right-4 h-16 w-16 rounded-full shadow-lg"
+          size="icon"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
+      </Link>
     </div>
   );
 }

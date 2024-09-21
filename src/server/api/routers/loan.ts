@@ -5,6 +5,26 @@ import { z } from "zod";
 
 export const loanRouter = createTRPCRouter({
   getAll: protectedProcedure
+    .output(
+      z.array(
+        z.object({
+          id: z.number(),
+          amount: z.number(),
+          description: z.string().nullable(),
+          type: z.enum(["loan", "debt"]),
+          expectedDate: z.date(),
+          paidAt: z.date().nullable(),
+          createdAt: z.date(),
+          relatedUser: z
+            .object({
+              name: z.string(),
+              email: z.string().email().nullable(),
+              avatar: z.string().nullable(),
+            })
+            .nullable(),
+        }),
+      ),
+    )
     .input(
       z.object({
         paidOnly: z.boolean().optional(),
@@ -21,6 +41,9 @@ export const loanRouter = createTRPCRouter({
       }
 
       const userLoans = await ctx.db.query.transactions.findMany({
+        with: {
+          relatedUser: { columns: { name: true, email: true, avatar: true } },
+        },
         where: and(...baseWhere),
         orderBy: (loans, { desc }) => [desc(loans.createdAt)],
       });
@@ -40,6 +63,8 @@ export const loanRouter = createTRPCRouter({
       0,
     );
 
-    return { totalLent };
+    const averageDebt = totalLent / userLoans.length;
+
+    return { totalLent, averageDebt };
   }),
 });

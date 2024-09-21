@@ -6,10 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { api } from "@/trpc/react";
+
 export default function AddLoanPage() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [expectedDate, setExpectedDate] = useState("");
+  const [relatedUserName, setRelatedUserName] = useState("");
+  const [relatedUserEmail, setRelatedUserEmail] = useState("");
   const router = useRouter();
 
   const { mutate, isPending } = api.transaction.create.useMutation({
@@ -30,6 +33,10 @@ export default function AddLoanPage() {
       description,
       type: "loan",
       expectedDate: new Date(expectedDate),
+      relatedUser: {
+        name: relatedUserName,
+        email: relatedUserEmail || undefined,
+      },
     });
   };
 
@@ -64,6 +71,26 @@ export default function AddLoanPage() {
             value={expectedDate}
             onChange={(e) => setExpectedDate(e.target.value)}
             required
+          />
+        </div>
+        <div>
+          <Label htmlFor="relatedUserName">Related User Name</Label>
+          <Input
+            id="relatedUserName"
+            value={relatedUserName}
+            onChange={(e) => setRelatedUserName(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="relatedUserEmail">
+            Related User Email (Optional)
+          </Label>
+          <Input
+            id="relatedUserEmail"
+            type="email"
+            value={relatedUserEmail}
+            onChange={(e) => setRelatedUserEmail(e.target.value)}
           />
         </div>
         <Button type="submit" disabled={isPending}>

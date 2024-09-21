@@ -9,6 +9,8 @@ import {
   timestamp,
   varchar,
   decimal,
+  pgEnum,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -18,7 +20,9 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator((name) => `money-tracker_${name}`);
+export const createTable = pgTableCreator((name) => `m-t_${name}`);
+
+export const loanTypeEnum = pgEnum("loan_type", ["loan", "debt"]);
 
 export const posts = createTable(
   "post",
@@ -58,6 +62,7 @@ export const users = createTable("user", {
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   transactions: many(transactions),
+  relatedUsers: many(relatedUsers),
 }));
 
 export const accounts = createTable(
@@ -131,13 +136,40 @@ export const verificationTokens = createTable(
   }),
 );
 
+export const relatedUsers = createTable(
+  "related_user",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }),
+    avatar: varchar("avatar", { length: 255 }),
+    userId: varchar("user_id", { length: 255 }).references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date(),
+    ),
+  },
+  (relatedUser) => ({
+    userIdIdx: index("related_user_user_id_idx").on(relatedUser.userId),
+  }),
+);
+
+export const relatedUsersRelations = relations(relatedUsers, ({ one }) => ({
+  user: one(users, {
+    fields: [relatedUsers.userId],
+    references: [users.id],
+  }),
+}));
+
 export const transactions = createTable(
   "transaction",
   {
     id: serial("id").primaryKey(),
-    amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+    amount: doublePrecision("amount").notNull(),
     description: text("description"),
-    type: varchar("type", { length: 10 }).notNull(), // 'loan' or 'debt'
+    type: loanTypeEnum("type").notNull(),
     userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id),
@@ -149,9 +181,13 @@ export const transactions = createTable(
     ),
     expectedDate: timestamp("expected_date", { withTimezone: true }).notNull(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
+    relatedUserId: integer("related_user_id").references(() => relatedUsers.id),
   },
   (transaction) => ({
     userIdIdx: index("transaction_user_id_idx").on(transaction.userId),
+    relatedUserIdIdx: index("transaction_related_user_id_idx").on(
+      transaction.relatedUserId,
+    ),
   }),
 );
 
@@ -159,5 +195,9 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
   user: one(users, {
     fields: [transactions.userId],
     references: [users.id],
+  }),
+  relatedUser: one(relatedUsers, {
+    fields: [transactions.relatedUserId],
+    references: [relatedUsers.id],
   }),
 }));
