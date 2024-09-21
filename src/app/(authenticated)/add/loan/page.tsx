@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { api } from "@/trpc/react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AddLoanPage() {
   const [amount, setAmount] = useState("");
@@ -14,13 +15,24 @@ export default function AddLoanPage() {
   const [relatedUserName, setRelatedUserName] = useState("");
   const [relatedUserEmail, setRelatedUserEmail] = useState("");
   const router = useRouter();
+  const { toast } = useToast();
 
   const { mutate, isPending } = api.transaction.create.useMutation({
     onSuccess: () => {
+      toast({
+        title: "Loan added",
+        description: "Your loan has been added",
+        variant: "default",
+      });
       router.push("/dashboard");
       router.refresh();
     },
     onError: (error) => {
+      toast({
+        title: "Failed to add loan",
+        description: "Please try again",
+        variant: "destructive",
+      });
       console.error("Failed to add loan:", error);
     },
   });
@@ -41,7 +53,7 @@ export default function AddLoanPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <h1 className="mb-4 text-2xl font-bold">Add New Loan</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

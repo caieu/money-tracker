@@ -1,6 +1,5 @@
 import { InfoCard } from "@/components/info-card";
 import { LoanList } from "@/components/loan-list";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/server";
 import { DollarSign, List, Plus, TrendingUp, Users } from "lucide-react";
@@ -11,12 +10,7 @@ export default async function DashboardPage() {
   const loans = await api.loan.getAll({});
 
   return (
-    <div className="min-h-screen space-y-4 bg-white p-4 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Debt Tracker Dashboard</h1>
-        <ThemeToggle />
-      </div>
-
+    <div className="min-h-screen space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <InfoCard
           title="Total Lent"

@@ -1,8 +1,6 @@
-import { GeistSans } from "geist/font/sans";
-
-import { TRPCReactProvider } from "@/trpc/react";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
+import { Navbar } from "@/components/navbar";
 
 export default async function AuthenticatedLayout({
   children,
@@ -14,10 +12,9 @@ export default async function AuthenticatedLayout({
   }
 
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
-      <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
-      </body>
-    </html>
+    <>
+      <Navbar />
+      <main className="container mx-auto bg-background p-4">{children}</main>
+    </>
   );
 }
