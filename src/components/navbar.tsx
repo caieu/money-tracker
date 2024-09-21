@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { LoginButton } from "./login-button";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +32,10 @@ export function Navbar() {
           </div>
           <div className="flex items-center">
             {isDesktop ? (
-              <LoginButton />
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <LoginButton />
+              </div>
             ) : (
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
@@ -44,7 +48,8 @@ export function Navbar() {
                   <SheetHeader>
                     <SheetTitle>Menu</SheetTitle>
                   </SheetHeader>
-                  <div className="mt-6 flex flex-col space-y-4">
+                  <div className="flex flex-col items-end gap-4">
+                    <ThemeToggle />
                     <LoginButton />
                   </div>
                 </SheetContent>
