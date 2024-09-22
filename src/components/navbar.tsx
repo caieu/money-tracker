@@ -11,9 +11,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, Wallet } from "lucide-react";
+import { Menu } from "lucide-react";
 import { LoginButton } from "./login-button";
 import { ThemeToggle } from "./theme-toggle";
+import { MoneyTracker } from "./icons/money-tracker";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,7 @@ export function Navbar() {
         <div className="flex h-16 justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex flex-shrink-0 items-center">
-              <Wallet className="mr-2 h-8 w-8 text-blue-500" />
+              <MoneyTracker />
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 MoneyTracker
               </h1>
