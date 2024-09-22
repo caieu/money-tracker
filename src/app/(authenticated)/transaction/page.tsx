@@ -12,7 +12,7 @@ import {
 import { cn, getVisiblePages } from "@/lib/utils";
 import { api } from "@/trpc/server";
 
-export const TransactionsPage = async ({
+const TransactionsPage = async ({
   searchParams,
 }: {
   // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style

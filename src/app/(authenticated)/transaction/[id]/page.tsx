@@ -58,7 +58,7 @@ const TransactionDetailPage = async ({
             Send Reminder
           </Button>
         )}
-        <AddPayment />
+        <AddPayment transactionId={id} />
       </div>
     </PageLayout>
   );
