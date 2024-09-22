@@ -27,7 +27,7 @@ const formSchema = z.object({
     message: "Invalid date format",
   }),
   relatedUserName: z.string().min(1, "Related user name is required"),
-  relatedUserEmail: z.string().email().optional().or(z.literal("")),
+  relatedUserEmail: z.string().email().optional(),
   type: z.enum(["loan", "debt"] as const),
 });
 
@@ -42,7 +42,7 @@ export default function AddLoanPage() {
       description: "",
       expectedDate: "",
       relatedUserName: "",
-      relatedUserEmail: "",
+      relatedUserEmail: undefined,
       type: "loan",
     },
   });
@@ -74,7 +74,7 @@ export default function AddLoanPage() {
       expectedDate: new Date(values.expectedDate),
       relatedUser: {
         name: values.relatedUserName,
-        email: values.relatedUserEmail,
+        ...(values.relatedUserEmail && { email: values.relatedUserEmail }),
       },
     });
   };

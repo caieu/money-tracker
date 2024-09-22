@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { transactions, relatedUsers } from "@/server/db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, count } from "drizzle-orm";
 
 export const transactionRouter = createTRPCRouter({
   create: protectedProcedure
@@ -50,17 +50,38 @@ export const transactionRouter = createTRPCRouter({
       return transaction;
     }),
 
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    const allTransactions = await ctx.db.query.transactions.findMany({
-      where: eq(transactions.userId, ctx.session.user.id),
-      with: {
-        relatedUser: true,
-      },
-      orderBy: desc(transactions.createdAt),
-    });
+  getAll: protectedProcedure
+    .input(
+      z
+        .object({
+          pageSize: z.number().min(1).max(100).default(5),
+          page: z.number().default(1),
+        })
+        .default({ page: 1, pageSize: 5 }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { pageSize, page } = input;
 
-    return allTransactions;
-  }),
+      const transactionCount = await ctx.db
+        .select({ count: count() })
+        .from(transactions)
+        .where(eq(transactions.userId, ctx.session.user.id));
+
+      const allTransactions = await ctx.db.query.transactions.findMany({
+        where: eq(transactions.userId, ctx.session.user.id),
+        with: {
+          relatedUser: true,
+        },
+        orderBy: desc(transactions.createdAt),
+        limit: pageSize,
+        offset: (page - 1) * pageSize,
+      });
+
+      const total = transactionCount?.[0]?.count ?? 0;
+      const hasNext = total > pageSize * page;
+
+      return { items: allTransactions, total, hasNext };
+    }),
 
   getSummary: protectedProcedure.query(async ({ ctx }) => {
     const userLoans = await ctx.db.query.transactions.findMany({

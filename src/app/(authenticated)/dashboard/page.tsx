@@ -1,5 +1,6 @@
 import { Header } from "@/components/header";
 import { InfoCard } from "@/components/info-card";
+import { ShowMore } from "@/components/show-more";
 import { TransactionCard } from "@/components/transaction-card";
 import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/server";
@@ -8,7 +9,8 @@ import Link from "next/link";
 
 export default async function DashboardPage() {
   const { totalLoans, totalDebts } = await api.transaction.getSummary();
-  const transactions = await api.transaction.getAll();
+  const { items: transactions, hasNext } = await api.transaction.getAll();
+
   return (
     <div className="mb-16 flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-4">
@@ -26,7 +28,10 @@ export default async function DashboardPage() {
         </InfoCard>
       </div>
       <div className="flex flex-col gap-2">
-        <Header>Recent Activity</Header>
+        <div className="flex justify-between">
+          <Header>Recent Transactions</Header>
+          <ShowMore hasNext={hasNext} />
+        </div>
         <div className="flex flex-col gap-4">
           {transactions.map((transaction) => (
             <TransactionCard key={transaction.id} transaction={transaction} />
