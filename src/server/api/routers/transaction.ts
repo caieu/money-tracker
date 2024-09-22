@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { transactions, relatedUsers } from "@/server/db/schema";
+import { and, desc, eq } from "drizzle-orm";
 
 export const transactionRouter = createTRPCRouter({
   create: protectedProcedure
@@ -48,4 +49,48 @@ export const transactionRouter = createTRPCRouter({
 
       return transaction;
     }),
+
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    const allTransactions = await ctx.db.query.transactions.findMany({
+      where: eq(transactions.userId, ctx.session.user.id),
+      with: {
+        relatedUser: true,
+      },
+      orderBy: desc(transactions.createdAt),
+    });
+
+    return allTransactions;
+  }),
+
+  getSummary: protectedProcedure.query(async ({ ctx }) => {
+    const userLoans = await ctx.db.query.transactions.findMany({
+      where: and(
+        eq(transactions.userId, ctx.session.user.id),
+        eq(transactions.type, "loan"),
+      ),
+    });
+
+    const userDebts = await ctx.db.query.transactions.findMany({
+      where: and(
+        eq(transactions.userId, ctx.session.user.id),
+        eq(transactions.type, "debt"),
+      ),
+    });
+
+    const totalLoans = userLoans.reduce(
+      (sum, loan) => sum + Number(loan.amount),
+      0,
+    );
+
+    const averageLoans = totalLoans / userLoans.length;
+
+    const totalDebts = userDebts.reduce(
+      (sum, debt) => sum + Number(debt.amount),
+      0,
+    );
+
+    const averageDebt = totalDebts / userDebts.length;
+
+    return { totalLoans, averageLoans, totalDebts, averageDebt };
+  }),
 });

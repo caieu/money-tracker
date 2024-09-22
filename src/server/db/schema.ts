@@ -8,7 +8,6 @@ import {
   text,
   timestamp,
   varchar,
-  decimal,
   pgEnum,
   doublePrecision,
 } from "drizzle-orm/pg-core";
@@ -22,7 +21,7 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const createTable = pgTableCreator((name) => `m-t_${name}`);
 
-export const loanTypeEnum = pgEnum("loan_type", ["loan", "debt"]);
+export const transactionTypeEnum = pgEnum("transaction_type", ["loan", "debt"]);
 
 export const posts = createTable(
   "post",
@@ -169,7 +168,7 @@ export const transactions = createTable(
     id: serial("id").primaryKey(),
     amount: doublePrecision("amount").notNull(),
     description: text("description"),
-    type: loanTypeEnum("type").notNull(),
+    type: transactionTypeEnum("type").notNull(),
     userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id),

@@ -1,50 +1,57 @@
+import { Header } from "@/components/header";
 import { InfoCard } from "@/components/info-card";
-import { LoanList } from "@/components/loan-list";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { api } from "@/trpc/server";
-import { DollarSign, List, Plus, TrendingUp, Users } from "lucide-react";
+import { Receipt, Plus, HandCoins } from "lucide-react";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const { totalLent, averageDebt } = await api.loan.getSummary();
-  const loans = await api.loan.getAll({});
-
+  const { totalLoans, totalDebts } = await api.transaction.getSummary();
+  const transactions = await api.transaction.getAll();
   return (
-    <div className="min-h-screen space-y-4">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <InfoCard
-          title="Total Lent"
-          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+          title="Total Loans"
+          icon={<HandCoins className="h-6 w-6 text-green-600" />}
         >
-          <div className="text-2xl font-bold">${totalLent.toFixed(2)}</div>
+          <div className="text-2xl font-bold">${totalLoans.toFixed(2)}</div>
         </InfoCard>
         <InfoCard
-          title="Number of Debtors"
-          icon={<Users className="h-4 w-4 text-muted-foreground" />}
+          title="Total Debts"
+          icon={<Receipt className="h-6 w-6 text-red-600" />}
         >
-          <div className="text-2xl font-bold">{loans.length}</div>
+          <div className="text-2xl font-bold">${totalDebts.toFixed(2)}</div>
         </InfoCard>
-
-        {!!averageDebt && (
-          <InfoCard
-            title="Average Debt"
-            icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
-          >
-            <div className="text-2xl font-bold">${averageDebt.toFixed(2)}</div>
-          </InfoCard>
-        )}
       </div>
-
-      {!!loans.length && (
-        <InfoCard
-          title="Loan List"
-          icon={<List className="h-4 w-4 text-muted-foreground" />}
-        >
-          <LoanList loans={loans} />
-        </InfoCard>
-      )}
-
-      <Link href="/add/loan" passHref>
+      <div className="flex flex-col gap-2">
+        <Header>Recent Activity</Header>
+        <div className="flex flex-col gap-4">
+          {transactions.map(({ amount, type, id, relatedUser, createdAt }) => (
+            <Card
+              key={id}
+              className="flex justify-between bg-white p-4 dark:bg-gray-800"
+            >
+              <div className="flex flex-col">
+                <div className="text-lg font-semibold">
+                  {`${type === "loan" ? "Loan to" : "Debt from"} ${relatedUser?.name}`}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {formatDate(createdAt)}
+                </div>
+              </div>
+              <div>
+                <div className="text-lg font-semibold">
+                  {formatCurrency(amount)}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+      <Link href="/add" passHref>
         <Button
           className="fixed bottom-4 right-4 h-16 w-16 rounded-full shadow-lg"
           size="icon"

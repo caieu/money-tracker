@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { api } from "@/trpc/react";
 import { useToast } from "@/hooks/use-toast";
+import { Header } from "@/components/header";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { type TransactionType } from "@/lib/types";
 
 export default function AddLoanPage() {
   const [amount, setAmount] = useState("");
@@ -14,6 +17,7 @@ export default function AddLoanPage() {
   const [expectedDate, setExpectedDate] = useState("");
   const [relatedUserName, setRelatedUserName] = useState("");
   const [relatedUserEmail, setRelatedUserEmail] = useState("");
+  const [type, setType] = useState<TransactionType>("loan");
   const router = useRouter();
   const { toast } = useToast();
 
@@ -43,7 +47,7 @@ export default function AddLoanPage() {
     mutate({
       amount: parseFloat(amount),
       description,
-      type: "loan",
+      type,
       expectedDate: new Date(expectedDate),
       relatedUser: {
         name: relatedUserName,
@@ -53,8 +57,20 @@ export default function AddLoanPage() {
   };
 
   return (
-    <div>
-      <h1 className="mb-4 text-2xl font-bold">Add New Loan</h1>
+    <div className="flex flex-col gap-4">
+      <Header>Add Transaction</Header>
+      <div className="flex gap-4">
+        <Tabs
+          defaultValue="loan"
+          className="w-full"
+          onValueChange={(value) => setType(value as TransactionType)}
+        >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="loan">Loan</TabsTrigger>
+            <TabsTrigger value="debt">Debt</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="amount">Amount</Label>
@@ -105,8 +121,8 @@ export default function AddLoanPage() {
             onChange={(e) => setRelatedUserEmail(e.target.value)}
           />
         </div>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Adding..." : "Add Loan"}
+        <Button type="submit" disabled={isPending} className="w-full">
+          {isPending ? "Adding..." : "Add"}
         </Button>
       </form>
     </div>

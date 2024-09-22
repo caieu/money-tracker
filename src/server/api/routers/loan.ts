@@ -2,6 +2,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { and, eq, isNotNull } from "drizzle-orm";
 import { transactions } from "@/server/db/schema";
 import { z } from "zod";
+import { type TransactionType } from "@/lib/types";
 
 export const loanRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -11,7 +12,7 @@ export const loanRouter = createTRPCRouter({
           id: z.number(),
           amount: z.number(),
           description: z.string().nullable(),
-          type: z.enum(["loan", "debt"]),
+          type: z.custom<TransactionType>(),
           expectedDate: z.date(),
           paidAt: z.date().nullable(),
           createdAt: z.date(),
@@ -49,22 +50,4 @@ export const loanRouter = createTRPCRouter({
       });
       return userLoans;
     }),
-
-  getSummary: protectedProcedure.query(async ({ ctx }) => {
-    const userLoans = await ctx.db.query.transactions.findMany({
-      where: and(
-        eq(transactions.userId, ctx.session.user.id),
-        eq(transactions.type, "loan"),
-      ),
-    });
-
-    const totalLent = userLoans.reduce(
-      (sum, loan) => sum + Number(loan.amount),
-      0,
-    );
-
-    const averageDebt = totalLent / userLoans.length;
-
-    return { totalLent, averageDebt };
-  }),
 });
