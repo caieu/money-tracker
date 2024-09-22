@@ -1,17 +1,16 @@
 import { Header } from "@/components/header";
 import { InfoCard } from "@/components/info-card";
+import { TransactionCard } from "@/components/transaction-card";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { formatCurrency, formatDate } from "@/lib/utils";
 import { api } from "@/trpc/server";
-import { Receipt, Plus, HandCoins } from "lucide-react";
+import { HandCoins, Plus, Receipt } from "lucide-react";
 import Link from "next/link";
 
 export default async function DashboardPage() {
   const { totalLoans, totalDebts } = await api.transaction.getSummary();
   const transactions = await api.transaction.getAll();
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mb-16 flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-4">
         <InfoCard
           title="Total Loans"
@@ -29,25 +28,8 @@ export default async function DashboardPage() {
       <div className="flex flex-col gap-2">
         <Header>Recent Activity</Header>
         <div className="flex flex-col gap-4">
-          {transactions.map(({ amount, type, id, relatedUser, createdAt }) => (
-            <Card
-              key={id}
-              className="flex justify-between bg-white p-4 dark:bg-gray-800"
-            >
-              <div className="flex flex-col">
-                <div className="text-lg font-semibold">
-                  {`${type === "loan" ? "Loan to" : "Debt from"} ${relatedUser?.name}`}
-                </div>
-                <div className="text-sm text-gray-500">
-                  {formatDate(createdAt)}
-                </div>
-              </div>
-              <div>
-                <div className="text-lg font-semibold">
-                  {formatCurrency(amount)}
-                </div>
-              </div>
-            </Card>
+          {transactions.map((transaction) => (
+            <TransactionCard key={transaction.id} transaction={transaction} />
           ))}
         </div>
       </div>

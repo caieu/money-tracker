@@ -1,31 +1,57 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { api } from "@/trpc/react";
-import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/header";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import { type TransactionType } from "@/lib/types";
+import { api } from "@/trpc/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+const formSchema = z.object({
+  amount: z.number().positive(),
+  description: z.string().min(1, "Description is required"),
+  expectedDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Invalid date format",
+  }),
+  relatedUserName: z.string().min(1, "Related user name is required"),
+  relatedUserEmail: z.string().email().optional().or(z.literal("")),
+  type: z.enum(["loan", "debt"] as const),
+});
 
 export default function AddLoanPage() {
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
-  const [expectedDate, setExpectedDate] = useState("");
-  const [relatedUserName, setRelatedUserName] = useState("");
-  const [relatedUserEmail, setRelatedUserEmail] = useState("");
-  const [type, setType] = useState<TransactionType>("loan");
   const router = useRouter();
   const { toast } = useToast();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      amount: 0,
+      description: "",
+      expectedDate: "",
+      relatedUserName: "",
+      relatedUserEmail: "",
+      type: "loan",
+    },
+  });
 
   const { mutate, isPending } = api.transaction.create.useMutation({
     onSuccess: () => {
       toast({
-        title: "Loan added",
-        description: "Your loan has been added",
+        title: "Transaction added",
+        description: "Your transaction has been added",
         variant: "default",
       });
       router.push("/dashboard");
@@ -33,25 +59,22 @@ export default function AddLoanPage() {
     },
     onError: (error) => {
       toast({
-        title: "Failed to add loan",
+        title: "Failed to add transaction",
         description: "Please try again",
         variant: "destructive",
       });
-      console.error("Failed to add loan:", error);
+      console.error("Failed to add transaction:", error);
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     mutate({
-      amount: parseFloat(amount),
-      description,
-      type,
-      expectedDate: new Date(expectedDate),
+      ...values,
+      amount: parseFloat(values.amount.toString()),
+      expectedDate: new Date(values.expectedDate),
       relatedUser: {
-        name: relatedUserName,
-        email: relatedUserEmail || undefined,
+        name: values.relatedUserName,
+        email: values.relatedUserEmail,
       },
     });
   };
@@ -63,7 +86,9 @@ export default function AddLoanPage() {
         <Tabs
           defaultValue="loan"
           className="w-full"
-          onValueChange={(value) => setType(value as TransactionType)}
+          onValueChange={(value) => {
+            form.setValue("type", value as TransactionType);
+          }}
         >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="loan">Loan</TabsTrigger>
@@ -71,60 +96,82 @@ export default function AddLoanPage() {
           </TabsList>
         </Tabs>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="amount">Amount</Label>
-          <Input
-            id="amount"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="amount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Amount</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    {...field}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <Label htmlFor="description">Description</Label>
-          <Input
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <Label htmlFor="expectedDate">Expected Repayment Date</Label>
-          <Input
-            id="expectedDate"
-            type="date"
-            value={expectedDate}
-            onChange={(e) => setExpectedDate(e.target.value)}
-            required
+          <FormField
+            control={form.control}
+            name="expectedDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Expected Repayment Date</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <Label htmlFor="relatedUserName">Related User Name</Label>
-          <Input
-            id="relatedUserName"
-            value={relatedUserName}
-            onChange={(e) => setRelatedUserName(e.target.value)}
-            required
+          <FormField
+            control={form.control}
+            name="relatedUserName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Related User Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <Label htmlFor="relatedUserEmail">
-            Related User Email (Optional)
-          </Label>
-          <Input
-            id="relatedUserEmail"
-            type="email"
-            value={relatedUserEmail}
-            onChange={(e) => setRelatedUserEmail(e.target.value)}
+          <FormField
+            control={form.control}
+            name="relatedUserEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Related User Email (Optional)</FormLabel>
+                <FormControl>
+                  <Input type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <Button type="submit" disabled={isPending} className="w-full">
-          {isPending ? "Adding..." : "Add"}
-        </Button>
-      </form>
+          <Button type="submit" disabled={isPending} className="w-full">
+            {isPending ? "Adding..." : "Add"}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }
