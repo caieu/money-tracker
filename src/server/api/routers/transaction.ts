@@ -39,6 +39,7 @@ export const transactionRouter = createTRPCRouter({
         .insert(transactions)
         .values({
           amount: input.amount,
+          paidAmount: 0,
           description: input.description,
           type: input.type,
           expectedDate: input.expectedDate,
@@ -81,6 +82,28 @@ export const transactionRouter = createTRPCRouter({
       const hasNext = total > pageSize * page;
 
       return { items: allTransactions, total, hasNext };
+    }),
+
+  getById: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { id } = input;
+      const transaction = await ctx.db.query.transactions.findFirst({
+        where: eq(transactions.id, id),
+        with: {
+          relatedUser: true,
+        },
+      });
+
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
+      if (transaction.userId !== ctx.session.user.id) {
+        throw new Error("You are not authorized to view this transaction");
+      }
+
+      return transaction;
     }),
 
   getSummary: protectedProcedure.query(async ({ ctx }) => {

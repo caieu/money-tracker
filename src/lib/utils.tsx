@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { type TransactionType } from "./types";
+import { HandCoins, Receipt } from "lucide-react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -12,6 +14,14 @@ export function formatDate(date: Date) {
     year: "numeric",
   });
 }
+
+export const getRemainingDays = (expectedDate: Date) => {
+  const today = new Date();
+  const expected = new Date(expectedDate);
+  return Math.ceil(
+    (expected.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  );
+};
 
 export function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-US", {
@@ -46,4 +56,13 @@ export const getVisiblePages = (currentPage: number, totalPages: number) => {
   }
 
   return range;
+};
+
+export const getTransactionTypeIcon = (type: TransactionType) => {
+  switch (type) {
+    case "loan":
+      return <HandCoins className="h-6 w-6 text-green-600" />;
+    case "debt":
+      return <Receipt className="h-6 w-6 text-red-600" />;
+  }
 };

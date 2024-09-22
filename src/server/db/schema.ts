@@ -10,6 +10,7 @@ import {
   varchar,
   pgEnum,
   doublePrecision,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -22,27 +23,6 @@ import { type AdapterAccount } from "next-auth/adapters";
 export const createTable = pgTableCreator((name) => `m-t_${name}`);
 
 export const transactionTypeEnum = pgEnum("transaction_type", ["loan", "debt"]);
-
-export const posts = createTable(
-  "post",
-  {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("created_by", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date(),
-    ),
-  },
-  (example) => ({
-    createdByIdIdx: index("created_by_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  }),
-);
 
 export const users = createTable("user", {
   id: varchar("id", { length: 255 })
@@ -165,8 +145,9 @@ export const relatedUsersRelations = relations(relatedUsers, ({ one }) => ({
 export const transactions = createTable(
   "transaction",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").primaryKey().defaultRandom(),
     amount: doublePrecision("amount").notNull(),
+    paidAmount: doublePrecision("paid_amount").notNull(),
     description: text("description"),
     type: transactionTypeEnum("type").notNull(),
     userId: varchar("user_id", { length: 255 })

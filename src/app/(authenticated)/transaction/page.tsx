@@ -15,7 +15,8 @@ import { api } from "@/trpc/server";
 export const TransactionsPage = async ({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+  searchParams: { [key: string]: string | string[] | undefined };
 }) => {
   const pageSize = 10;
   const pageNumber = !!searchParams.page ? Number(searchParams.page) : 1;
@@ -53,7 +54,7 @@ export const TransactionsPage = async ({
                 )}
               >
                 <PaginationPrevious
-                  href={`/transactions?page=${pageNumber - 1}`}
+                  href={`/transaction?page=${pageNumber - 1}`}
                 />
               </PaginationItem>
             )}
@@ -63,7 +64,7 @@ export const TransactionsPage = async ({
                   <PaginationEllipsis />
                 ) : (
                   <PaginationLink
-                    href={`/transactions?page=${page}`}
+                    href={`/transaction?page=${page}`}
                     isActive={pageNumber === page}
                   >
                     {page}
@@ -77,7 +78,7 @@ export const TransactionsPage = async ({
                   isNextDisabled && "cursor-not-allowed opacity-50",
                 )}
               >
-                <PaginationNext href={`/transactions?page=${pageNumber + 1}`} />
+                <PaginationNext href={`/transaction?page=${pageNumber + 1}`} />
               </PaginationItem>
             )}
           </PaginationContent>
