@@ -11,6 +11,7 @@ import {
   pgEnum,
   doublePrecision,
   uuid,
+  decimal,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -171,13 +172,47 @@ export const transactions = createTable(
   }),
 );
 
-export const transactionsRelations = relations(transactions, ({ one }) => ({
-  user: one(users, {
-    fields: [transactions.userId],
-    references: [users.id],
+export const transactionsRelations = relations(
+  transactions,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [transactions.userId],
+      references: [users.id],
+    }),
+    relatedUser: one(relatedUsers, {
+      fields: [transactions.relatedUserId],
+      references: [relatedUsers.id],
+    }),
+    payments: many(payments),
   }),
-  relatedUser: one(relatedUsers, {
-    fields: [transactions.relatedUserId],
-    references: [relatedUsers.id],
+);
+
+export const payments = createTable(
+  "payment",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    amount: doublePrecision("amount").notNull(),
+    date: timestamp("date", { withTimezone: true }).notNull(),
+    transactionId: uuid("transaction_id")
+      .notNull()
+      .references(() => transactions.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date(),
+    ),
+  },
+  (payment) => ({
+    transactionIdIdx: index("payment_transaction_id_idx").on(
+      payment.transactionId,
+    ),
+  }),
+);
+
+export const paymentsRelations = relations(payments, ({ one }) => ({
+  transaction: one(transactions, {
+    fields: [payments.transactionId],
+    references: [transactions.id],
   }),
 }));

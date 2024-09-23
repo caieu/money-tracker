@@ -23,19 +23,34 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { api } from "@/trpc/react";
+import { useToast } from "@/hooks/use-toast";
 
 export const AddPayment = ({ transactionId }: { transactionId: string }) => {
   const [payment, setPayment] = React.useState("");
   const [date, setDate] = React.useState<Date>(new Date());
+  const { mutate } = api.payment.create.useMutation();
+  const { toast } = useToast();
+  const [open, setOpen] = React.useState(false);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Payment submitted:", { amount: payment, date: date });
-    // Here you would typically send this data to your backend
+    mutate(
+      { amount: Number(payment), date: date, transactionId },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Payment added successfully",
+            description: "Your payment has been added to the transaction.",
+          });
+          setOpen(false);
+        },
+      },
+    );
   };
 
   return (
-    <Drawer>
+    <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
         <Button className="flex-1">Add Payment</Button>
       </DrawerTrigger>
