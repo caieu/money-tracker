@@ -1,5 +1,6 @@
 "use client";
 
+import { DatePicker } from "@/components/date-picker";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +22,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const formSchema = z.object({
-  amount: z.number().positive(),
+  amount: z.number().positive().default(0),
   description: z.string().min(1, "Description is required"),
   expectedDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: "Invalid date format",
@@ -40,7 +41,7 @@ export default function AddLoanPage() {
     defaultValues: {
       amount: 0,
       description: "",
-      expectedDate: "",
+      expectedDate: new Date().toISOString(),
       relatedUserName: "",
       relatedUserEmail: undefined,
       type: "loan",
@@ -133,11 +134,11 @@ export default function AddLoanPage() {
             name="expectedDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Expected Repayment Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
+                <FormLabel>Expected Payment Date</FormLabel>
+                <DatePicker
+                  date={new Date(field.value)}
+                  setDate={field.onChange}
+                />
               </FormItem>
             )}
           />

@@ -25,8 +25,14 @@ import {
 } from "@/components/ui/popover";
 import { api } from "@/trpc/react";
 import { useToast } from "@/hooks/use-toast";
+import { DatePicker } from "./date-picker";
 
-export const AddPayment = ({ transactionId }: { transactionId: string }) => {
+interface AddPaymentProps {
+  transactionId: string;
+  onSuccess?: () => void;
+}
+
+export const AddPayment = ({ transactionId, onSuccess }: AddPaymentProps) => {
   const [payment, setPayment] = React.useState("");
   const [date, setDate] = React.useState<Date>(new Date());
   const { mutate } = api.payment.create.useMutation();
@@ -44,6 +50,7 @@ export const AddPayment = ({ transactionId }: { transactionId: string }) => {
             description: "Your payment has been added to the transaction.",
           });
           setOpen(false);
+          onSuccess?.();
         },
       },
     );
@@ -79,27 +86,7 @@ export const AddPayment = ({ transactionId }: { transactionId: string }) => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="date">Payment Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={`w-full justify-start text-left font-normal ${
-                          !date && "text-muted-foreground"
-                        }`}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={(newDate) => setDate(newDate ?? new Date())}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DatePicker date={date} setDate={setDate} />
                 </div>
               </div>
             </div>
@@ -114,4 +101,20 @@ export const AddPayment = ({ transactionId }: { transactionId: string }) => {
       </DrawerContent>
     </Drawer>
   );
+};
+
+interface AddPaymentWrapperProps {
+  transactionId: string;
+  revalidateTransaction: (id: string) => Promise<void>;
+}
+
+export const AddPaymentWrapper: React.FC<AddPaymentWrapperProps> = ({
+  transactionId,
+  revalidateTransaction,
+}) => {
+  const handleSuccess = async () => {
+    await revalidateTransaction(transactionId);
+  };
+
+  return <AddPayment transactionId={transactionId} onSuccess={handleSuccess} />;
 };

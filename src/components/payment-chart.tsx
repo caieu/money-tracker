@@ -18,7 +18,6 @@ type PaymentChartProps = {
 const chartConfig = {
   paidAmount: {
     label: "Paid Amount",
-    color: "#16a34a",
   },
 } satisfies ChartConfig;
 
@@ -40,10 +39,10 @@ export const PaymentChart = ({ amount, paidAmount }: PaymentChartProps) => {
           gridType="circle"
           radialLines={false}
           stroke="none"
-          className="first:fill-gray-600 last:fill-background"
-          polarRadius={[86, 74]}
+          className="first:fill-background last:fill-background"
+          polarRadius={[90, 74]}
         />
-        <RadialBar dataKey="paidAmount" background cornerRadius={10} />
+        <RadialBar dataKey="paidAmount" cornerRadius={10} />
         <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
           <Label
             content={({ viewBox }) => {

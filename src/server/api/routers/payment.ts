@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { payments, transactions } from "@/server/db/schema";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export const paymentRouter = createTRPCRouter({
   create: protectedProcedure
@@ -60,5 +60,33 @@ export const paymentRouter = createTRPCRouter({
         .where(eq(transactions.id, transactionId));
 
       return payment;
+    }),
+  getByTransactionId: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { id } = input;
+      const transaction = await ctx.db.query.transactions.findFirst({
+        where: eq(transactions.id, id),
+      });
+
+      if (!transaction) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Transaction not found",
+        });
+      }
+
+      if (transaction.userId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not authorized to view this transaction",
+        });
+      }
+
+      const transactionPayments = await ctx.db.query.payments.findMany({
+        where: and(eq(payments.transactionId, id)),
+      });
+
+      return transactionPayments;
     }),
 });
