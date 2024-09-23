@@ -137,7 +137,7 @@ export default function AddLoanPage() {
                 <FormLabel>Expected Payment Date</FormLabel>
                 <DatePicker
                   date={new Date(field.value)}
-                  setDate={field.onChange}
+                  setDate={(date) => field.onChange(date.toISOString())}
                 />
               </FormItem>
             )}
