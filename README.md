@@ -1,6 +1,15 @@
-# Create T3 App
-
+# MoneyTracker (WIP)
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+
+You can try it out at [money-tracker.vercel.app](https://money-tracker-brown-omega.vercel.app/).
+
+## How to run locally
+
+1. Clone the repository
+1. Run `bun install`
+1. Run `./start-database.sh`
+1. Run `bun db:push`
+1. Run `bun run dev`
 
 ## What's next? How do I make an app with this?
 
@@ -27,3 +36,5 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 ## How do I deploy this?
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+
+
