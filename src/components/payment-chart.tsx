@@ -39,10 +39,14 @@ export const PaymentChart = ({ amount, paidAmount }: PaymentChartProps) => {
           gridType="circle"
           radialLines={false}
           stroke="none"
-          className="first:fill-background last:fill-background"
-          polarRadius={[90, 74]}
+          className="first:fill-gray-700 last:fill-background"
+          polarRadius={[80, 74]}
         />
-        <RadialBar dataKey="paidAmount" cornerRadius={10} />
+        <RadialBar
+          dataKey="paidAmount"
+          cornerRadius={10}
+          className="fill-green-500"
+        />
         <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
           <Label
             content={({ viewBox }) => {
