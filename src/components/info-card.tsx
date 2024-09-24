@@ -15,7 +15,7 @@ export const InfoCard = ({
   className,
 }: PropsWithChildren<InfoCardProps>) => {
   return (
-    <Card className={cn("bg-white dark:bg-gray-800", className)}>
+    <Card className={cn("bg-background", className)}>
       <CardHeader
         className={cn(
           "flex flex-row items-center justify-between space-y-0 pb-0",

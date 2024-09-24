@@ -1,4 +1,5 @@
 import { ActivityCard } from "@/components/activity-card";
+import { EmptyState } from "@/components/empty-state";
 import { Header } from "@/components/header";
 import { InfoCard } from "@/components/info-card";
 import { ShowMore } from "@/components/show-more";
@@ -10,6 +11,13 @@ import Link from "next/link";
 export default async function DashboardPage() {
   const { totalLoans, totalDebts } = await api.transaction.getSummary();
   const { items: activities, hasNext } = await api.activity.get();
+
+  const isEmpty =
+    totalLoans === 0 && totalDebts === 0 && activities.length === 0;
+
+  if (isEmpty) {
+    return <EmptyState />;
+  }
 
   return (
     <div className="mb-16 flex flex-col gap-4">
