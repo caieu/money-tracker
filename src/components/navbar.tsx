@@ -22,7 +22,7 @@ export function Navbar() {
 
   return (
     <nav className="bg-white shadow-md dark:bg-gray-800">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex flex-shrink-0 items-center">
