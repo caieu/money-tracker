@@ -82,7 +82,7 @@ export default function AddLoanPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Header>Add Transaction</Header>
+      <Header>New Transaction</Header>
       <div className="flex gap-4">
         <Tabs
           defaultValue="loan"

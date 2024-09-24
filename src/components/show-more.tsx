@@ -11,9 +11,9 @@ export const ShowMore = ({ hasNext }: { hasNext: boolean }) => {
   return (
     <Button
       onClick={() => {
-        router.push(`/transaction`);
+        router.push(`/activity`);
       }}
-      variant="link"
+      variant="outline"
     >
       Show More
     </Button>

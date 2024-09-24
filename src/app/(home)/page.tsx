@@ -31,7 +31,7 @@ export default async function Home() {
             <Card className="bg-white dark:bg-gray-800">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold">
-                  Feature 1: Easy Tracking
+                  Easy Tracking
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -43,9 +43,7 @@ export default async function Home() {
 
             <Card className="bg-white dark:bg-gray-800">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold">
-                  Feature 2: Reminders
-                </CardTitle>
+                <CardTitle className="text-2xl font-bold">Reminders</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 dark:text-gray-300">
@@ -56,9 +54,7 @@ export default async function Home() {
 
             <Card className="bg-white dark:bg-gray-800">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold">
-                  Feature 3: Reports
-                </CardTitle>
+                <CardTitle className="text-2xl font-bold">Reports</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 dark:text-gray-300">

@@ -1,17 +1,15 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  doublePrecision,
   index,
   integer,
+  pgEnum,
   pgTableCreator,
   primaryKey,
-  serial,
   text,
   timestamp,
-  varchar,
-  pgEnum,
-  doublePrecision,
   uuid,
-  decimal,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -26,10 +24,7 @@ export const createTable = pgTableCreator((name) => `m-t_${name}`);
 export const transactionTypeEnum = pgEnum("transaction_type", ["loan", "debt"]);
 
 export const users = createTable("user", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull(),
   emailVerified: timestamp("email_verified", {
@@ -48,7 +43,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const accounts = createTable(
   "account",
   {
-    userId: varchar("user_id", { length: 255 })
+    userId: uuid("user_id")
       .notNull()
       .references(() => users.id),
     type: varchar("type", { length: 255 })
@@ -84,7 +79,7 @@ export const sessions = createTable(
     sessionToken: varchar("session_token", { length: 255 })
       .notNull()
       .primaryKey(),
-    userId: varchar("user_id", { length: 255 })
+    userId: uuid("user_id")
       .notNull()
       .references(() => users.id),
     expires: timestamp("expires", {
@@ -119,11 +114,11 @@ export const verificationTokens = createTable(
 export const relatedUsers = createTable(
   "related_user",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }),
     avatar: varchar("avatar", { length: 255 }),
-    userId: varchar("user_id", { length: 255 }).references(() => users.id),
+    userId: uuid("user_id").references(() => users.id),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -151,7 +146,7 @@ export const transactions = createTable(
     paidAmount: doublePrecision("paid_amount").notNull(),
     description: text("description"),
     type: transactionTypeEnum("type").notNull(),
-    userId: varchar("user_id", { length: 255 })
+    userId: uuid("user_id")
       .notNull()
       .references(() => users.id),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -162,7 +157,7 @@ export const transactions = createTable(
     ),
     expectedDate: timestamp("expected_date", { withTimezone: true }).notNull(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
-    relatedUserId: integer("related_user_id").references(() => relatedUsers.id),
+    relatedUserId: uuid("related_user_id").references(() => relatedUsers.id),
   },
   (transaction) => ({
     userIdIdx: index("transaction_user_id_idx").on(transaction.userId),

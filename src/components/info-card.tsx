@@ -19,7 +19,7 @@ export const InfoCard = ({
       <CardHeader
         className={cn(
           "flex flex-row items-center justify-between space-y-0 pb-0",
-          title && "h-[60px] pb-1",
+          title && "pb-1",
           className,
         )}
       >

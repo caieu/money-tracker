@@ -1,7 +1,7 @@
+import { ActivityCard } from "@/components/activity-card";
 import { Header } from "@/components/header";
 import { InfoCard } from "@/components/info-card";
 import { ShowMore } from "@/components/show-more";
-import { TransactionCard } from "@/components/transaction-card";
 import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/server";
 import { HandCoins, Plus, Receipt } from "lucide-react";
@@ -9,7 +9,7 @@ import Link from "next/link";
 
 export default async function DashboardPage() {
   const { totalLoans, totalDebts } = await api.transaction.getSummary();
-  const { items: transactions, hasNext } = await api.transaction.getAll();
+  const { items: activities, hasNext } = await api.activity.get();
 
   return (
     <div className="mb-16 flex flex-col gap-4">
@@ -28,13 +28,13 @@ export default async function DashboardPage() {
         </InfoCard>
       </div>
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between">
-          <Header>Recent Transactions</Header>
+        <div className="flex items-center justify-between">
+          <Header>Recent Activity</Header>
           <ShowMore hasNext={hasNext} />
         </div>
         <div className="flex flex-col gap-4">
-          {transactions.map((transaction) => (
-            <TransactionCard key={transaction.id} transaction={transaction} />
+          {activities.map((activity) => (
+            <ActivityCard key={activity.id} activity={activity} />
           ))}
         </div>
       </div>

@@ -1,5 +1,5 @@
+import { ActivityCard } from "@/components/activity-card";
 import { Header } from "@/components/header";
-import { TransactionCard } from "@/components/transaction-card";
 import {
   Pagination,
   PaginationContent,
@@ -12,7 +12,7 @@ import {
 import { cn, getVisiblePages } from "@/lib/utils";
 import { api } from "@/trpc/server";
 
-const TransactionsPage = async ({
+const ActivityPage = async ({
   searchParams,
 }: {
   // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
@@ -21,10 +21,10 @@ const TransactionsPage = async ({
   const pageSize = 10;
   const pageNumber = !!searchParams.page ? Number(searchParams.page) : 1;
   const {
-    items: transactions,
+    items: activities,
     total,
     hasNext,
-  } = await api.transaction.getAll({
+  } = await api.activity.get({
     page: pageNumber,
     pageSize,
   });
@@ -38,10 +38,10 @@ const TransactionsPage = async ({
 
   return (
     <div className="flex flex-col gap-4">
-      <Header>Transactions</Header>
+      <Header>Activity</Header>
       <div className="flex flex-col gap-4">
-        {transactions.map((transaction) => (
-          <TransactionCard key={transaction.id} transaction={transaction} />
+        {activities.map((activity) => (
+          <ActivityCard key={activity.id} activity={activity} />
         ))}
       </div>
       {showPagination && (
@@ -88,4 +88,4 @@ const TransactionsPage = async ({
   );
 };
 
-export default TransactionsPage;
+export default ActivityPage;

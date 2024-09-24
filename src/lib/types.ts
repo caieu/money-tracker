@@ -7,3 +7,5 @@ export type Transaction =
 
 export type RelatedUser =
   RouterOutputs["transaction"]["getById"]["relatedUser"];
+
+export type Activity = RouterOutputs["activity"]["get"]["items"][number];
